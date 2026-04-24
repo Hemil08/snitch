@@ -1,8 +1,10 @@
 import app from "./src/app.js"
 import { config } from "dotenv"
+import { connectToDB } from "./src/config/database.js"
 
 config()
 
+connectToDB()
 
 
 app.listen(3000,()=>{
