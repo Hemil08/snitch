@@ -8,8 +8,12 @@ const userSchema = new mongoose.Schema({
     },
 
     contact:{
-        type:String,
-        required:true
+        country:{type:String,required:true,default:"+91"},
+        number:{
+            type:String,
+            required:true,
+            unique:true,    
+        },
     },
 
     password:{
