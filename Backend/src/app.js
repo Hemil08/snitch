@@ -1,7 +1,7 @@
 import express from "express"
 import cookieparser from "cookie-parser"
 import morgan from "morgan"
-import authRouter from "./routers/authRouter.js"
+import authRouter from "./routes/auth.routes.js"
 
 const app = express()
 
