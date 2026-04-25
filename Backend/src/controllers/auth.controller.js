@@ -6,6 +6,19 @@ async function sendTokenRequest(user,res){
 
     const token = jwt.sign({
         id:user._id,
+    },config.jwtSecret,{
+        expiresIn:"7d"
+    })
+
+    res.status(200).json({
+        token,
+        user:{
+            id:user._id,
+            email:user.email,
+            contact:user.contact,
+            fullname:user.fullname,
+            role:user.role
+        }
     })
 }
 
@@ -34,7 +47,7 @@ export const register = async(req,res) => {
             role 
         })
 
-
+        await sendTokenRequest(user,res)
 
 
     }
