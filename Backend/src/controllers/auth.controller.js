@@ -2,11 +2,11 @@ import userModel from "../models/user.model.js"
 import jwt from "jsonwebtoken"
 import { config } from "../config/config.js"
 
-async function sendTokenRequest(user,res){
+async function sendTokenRequest(user,res, message){
 
     const token = jwt.sign({
         id:user._id,
-    },config.jwtSecret,{
+    },config.JWT_SECRET,{
         expiresIn:"7d"
     })
 
@@ -47,7 +47,7 @@ export const register = async(req,res) => {
             role: isSeller ? "seller" : "buyer"
         })
 
-        await sendTokenRequest(user,res)
+        await sendTokenRequest(user,res, "User registered successfully")
 
 
     }
@@ -56,3 +56,4 @@ export const register = async(req,res) => {
         res.status(500).json({ message: "Server error" });
     }
 }
+

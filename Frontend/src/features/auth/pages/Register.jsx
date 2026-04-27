@@ -11,7 +11,7 @@ const Register = () => {
     const [formData, setFormData] = useState({
         email: '',
         contact: {
-        country: '+49',
+        country: '',
         number: ''
         },  
         password: '',
@@ -21,25 +21,49 @@ const Register = () => {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
+
+        if(name === "contact.country"){
+            setFormData(prev => ({
+                ...prev,
+                contact:{
+                    ...prev.contact,
+                    country:value
+                }
+            }))
+        }
+
+        else if(name === "contact.number"){
+            setFormData(prev => ({
+                ...prev,
+                contact:{
+                    ...prev.contact,
+                    number:value
+                }
+            }))
+        }
+
+        else{
+            setFormData(prev => ({
+                ...prev,
+                [name]: type === "checkbox" ? checked : value
+            }))
+        }
     }
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        await handleRegister({ 
+    e.preventDefault();
+
+        await handleRegister({
             email: formData.email,
             contact: {
-                country: formData.contact.country,  
+                country: formData.contact.country,
                 number: formData.contact.number
             },
             password: formData.password,
             fullname: formData.fullName,
             isSeller: formData.isSeller
         });
-    }
+    };
 
     const inputStyle = {
         color: '#1b1c1a',
@@ -238,6 +262,8 @@ const Register = () => {
                                     name="password"
                                     required
                                     placeholder="••••••••"
+                                    value={formData.password}
+                                    onChange={handleChange}
                                     className="w-full bg-transparent outline-none py-3 text-sm transition-colors duration-300"
                                     style={inputStyle}
                                     onFocus={handleFocus}
@@ -255,6 +281,8 @@ const Register = () => {
                                         id="reg-isSeller"
                                         type="checkbox"
                                         name="isSeller"
+                                        checked={formData.isSeller}
+                                        onChange={handleChange}
                                         className="peer sr-only"
                                     />
                                     {/* Custom checkbox */}
