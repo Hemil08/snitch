@@ -1,9 +1,11 @@
 import { useState } from "react";
 import registerImg from "../../../assets/snitch_editorial_warm.jpg";
-import useAuth from "../hooks/useAuth"
+import useAuth from "../hook/useAuth.js"
+import { useNavigate } from "react-router";
 
 const Register = () => {
 
+    const navigate = useNavigate()
     const { handleRegister } = useAuth();
 
     const [formData, setFormData] = useState({
@@ -308,15 +310,15 @@ const Register = () => {
                             {/* Footer Link */}
                             <p className="text-center text-[11px]" style={{ color: '#B5ADA3' }}>
                                 Already have an account?{' '}
-                                <a
-                                    href="/login"
+                                <span
+                                    onClick={() => navigate('/login')}
                                     className="transition-colors duration-200"
                                     style={{ color: '#7A6E63', textDecoration: 'underline', textUnderlineOffset: '3px' }}
                                     onMouseEnter={e => e.target.style.color = '#C9A96E'}
                                     onMouseLeave={e => e.target.style.color = '#7A6E63'}
                                 >
                                     Sign in
-                                </a>
+                                </span>
                             </p>
                         </form>
                     </div>

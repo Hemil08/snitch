@@ -10,7 +10,11 @@ const router = createBrowserRouter([
     {
         path:"/register",
         element:<Register />
-    }  
+    },
+    {
+        path:"/login",
+        element:<h1> Login Page</h1>
+    }
 ])
 
 export default router
