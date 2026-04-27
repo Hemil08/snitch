@@ -1,16 +1,43 @@
 import { useState } from "react";
 import registerImg from "../../../assets/snitch_editorial_warm.jpg";
+import useAuth from "../hooks/useAuth"
 
 const Register = () => {
 
+    const { handleRegister } = useAuth();
+
     const [formData, setFormData] = useState({
-        fullName: '',
-        contactNumber: '',
         email: '',
+        contact: {
+        country: '+49',
+        number: ''
+        },  
         password: '',
-        isSeller: false
+        isSeller: false,
+        fullName: ''
     });
 
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        await handleRegister({ 
+            email: formData.email,
+            contact: {
+                country: formData.contact.country,  
+                number: formData.contact.number
+            },
+            password: formData.password,
+            fullname: formData.fullName,
+            isSeller: formData.isSeller
+        });
+    }
 
     const inputStyle = {
         color: '#1b1c1a',
@@ -20,6 +47,7 @@ const Register = () => {
 
     const handleFocus = (e) => { e.target.style.borderBottomColor = '#C9A96E'; };
     const handleBlur = (e) => { e.target.style.borderBottomColor = '#d0c5b5'; };
+
 
     return (
         <>
@@ -101,7 +129,7 @@ const Register = () => {
                         </div>
 
                         {/* Form */}
-                        <form className="flex flex-col gap-9">
+                        <form className="flex flex-col gap-9" onSubmit={handleSubmit}>
 
                             {/* Full Name */}
                             <div className="flex flex-col gap-2">
@@ -116,6 +144,8 @@ const Register = () => {
                                     id="reg-fullName"
                                     type="text"
                                     name="fullName"
+                                    value={formData.fullName}
+                                    onChange={handleChange}
                                     required
                                     placeholder="e.g. John Doe"
                                     className="w-full bg-transparent outline-none py-3 text-sm transition-colors duration-300"
@@ -139,7 +169,9 @@ const Register = () => {
                                     <input
                                         id="reg-contact-country"
                                         type="text"
-                                        name="contact_country"
+                                        name="contact.country"
+                                        value={formData.contact.country}
+                                        onChange={handleChange}
                                         required
                                         placeholder="+49"
                                         maxLength="4"
@@ -152,7 +184,9 @@ const Register = () => {
                                     <input
                                         id="reg-contact-number"
                                         type="tel"
-                                        name="contact_number"
+                                        name="contact.number"
+                                        value={formData.contact.number}
+                                        onChange={handleChange}
                                         required
                                         placeholder="123 1234 1234"
                                         className="flex-1 bg-transparent outline-none py-3 text-sm transition-colors duration-300"
@@ -176,6 +210,8 @@ const Register = () => {
                                     id="reg-email"
                                     type="email"
                                     name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
                                     required
                                     placeholder="hello@example.com"
                                     className="w-full bg-transparent outline-none py-3 text-sm transition-colors duration-300"
