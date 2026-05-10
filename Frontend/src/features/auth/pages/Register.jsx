@@ -48,7 +48,7 @@ const Register = () => {
                 [name]: type === "checkbox" ? checked : value
             }))
         }
-    }
+    }   
 
     const handleSubmit = async (e) => {
     e.preventDefault();
@@ -63,8 +63,8 @@ const Register = () => {
             fullname: formData.fullName,
             isSeller: formData.isSeller
         });
-
-        navigate('/login')
+        
+        navigate('/')
     };
 
     const inputStyle = {
@@ -336,6 +336,8 @@ const Register = () => {
 
                             {/* Google SSO */}
                             {/* <ContinueWithGoogle /> */}
+
+                            <a href="/api/auth/google">Continue with Google</a>
 
                             {/* Footer Link */}
                             <p className="text-center text-[11px]" style={{ color: '#B5ADA3' }}>

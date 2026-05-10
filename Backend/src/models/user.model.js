@@ -19,7 +19,9 @@ const userSchema = new mongoose.Schema({
 
     password:{
         type:String,
-        required:true
+        required: function(){
+            return !this.googleId
+        }
     },
 
     fullname:{
@@ -31,7 +33,14 @@ const userSchema = new mongoose.Schema({
         type:String,
         enum:["seller","buyer"],
         default:"buyer"
+    },
+
+    googleId:{
+        type:String,
+        required:false
     }
+},{
+    timestamps:true
 })
 
 userSchema.pre("save",async function(){
