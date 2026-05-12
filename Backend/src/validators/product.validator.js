@@ -10,3 +10,11 @@ function validateRequest(req, res, next) {
 
     next()
 }
+
+export const validateCreateProduct = [
+    body("title").notEmpty().withMessage("Title is required"),
+    body("description").notEmpty().withMessage("Description is required"),
+    body("priceAmount").isNumeric().withMessage("Price amount must be a number greater than 0"),
+    body("priceCurrency").notEmpty().withMessage("Price currency must be a 3-letter code"),
+    validateRequest
+]

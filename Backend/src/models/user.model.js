@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
     },
 
     contact:{
-        country:{type:String,required:true,default:"+91"},
+        country:{type:String,required:true,default:"+49"},
         number:{
             type:String,
             required:true,
@@ -58,4 +58,4 @@ userSchema.methods.comparePassword = async function(password){
 
 const userModel = mongoose.model("user",userSchema)
 
-export default userModel
+export default userModel  

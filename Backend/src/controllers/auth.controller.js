@@ -10,6 +10,8 @@ async function sendTokenRequest(user,res, message){
         expiresIn:"7d"
     })
 
+    res.cookie("token", token)
+
     res.status(200).json({
         token,
         user:{
