@@ -17,6 +17,18 @@ const router = Router()
 // @desc Create a new product
 // @access Private (only sellers can create products)
 
-router.post("/", authenticateSeller, upload.array("images", 7),createProduct)
+router.post("/", authenticateSeller, upload.array("images", 7),productController.createProduct)
+
+// @route GET /api/products/seller
+// @desc Get products of the authenticated seller
+// @access Private (only sellers can access their products)
+
+router.get("/seller", authenticateSeller, productController.getSellerProducts)
+
+// @route GET /api/products
+// @desc Get all products (for buyers)
+// @access Public
+
+router.get("/", productController.getAllProducts)
 
 export default router

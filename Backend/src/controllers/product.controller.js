@@ -4,7 +4,7 @@ import productModel from "../models/product.model.js";
 export async function createProduct(req,res) {
 
     const seller = req.user._id
-    const {title, description, priceAmount, priceCurrency} = req.body   
+    const {title, description, priceAmount, priceCurrency,} = req.body   
 
     const images = await Promise.all(req.files.map(async (file)  => {
         return await uploadFile({
@@ -35,4 +35,22 @@ export async function getSellerProducts(req,res) {
     const seller = req.user
 
     const products = await productModel.find({seller: seller._id})
+
+    res.status(200).json({
+        message: "Products fetched successfully",
+        success: true,
+        products
+    })
+}
+
+export async function getAllProducts(req,res) {
+
+    const products = await productModel.find().populate("seller", "name email")
+
+    res.status(200).json({
+        message: "Products fetched successfully",
+        success: true,
+        products
+    })
+    
 }
