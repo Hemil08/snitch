@@ -31,4 +31,10 @@ router.get("/seller", authenticateSeller, productController.getSellerProducts)
 
 router.get("/", productController.getAllProducts)
 
+// @route GET /api/products/detail/:id
+// @desc Get product details by ID
+// @access Public
+
+router.get("/detail/:id", productController.getProductDetails)
+
 export default router
