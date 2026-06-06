@@ -37,4 +37,11 @@ router.get("/", productController.getAllProducts)
 
 router.get("/detail/:id", productController.getProductDetails)
 
+// @route post /api/products/:productId/variants
+// @description Add a new variant to a product
+// @access Private (only sellers can add variants)
+
+router.post("/:productId/variants", authenticateSeller, upload.array('image',7) , productController.addProductVariant)
+
+
 export default router

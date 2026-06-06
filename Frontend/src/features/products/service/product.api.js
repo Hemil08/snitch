@@ -32,4 +32,5 @@ export async function getProductById(productId){
     const response = await productApiInstance.get(`/detail/${productId}`) 
 
     return response.data
+
 }

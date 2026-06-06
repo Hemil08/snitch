@@ -58,7 +58,7 @@ export async function getAllProducts(req,res) {
 export async function getProductDetails(req,res) {
     const {id} = req.params
 
-    const product = await productModel.findById(id).populate("seller", "name email")
+    const product = await productModel.findById(id)
 
     if(!product){
         return res.status(404).json({
@@ -73,4 +73,39 @@ export async function getProductDetails(req,res) {
         product
     })
     
+}
+
+export async function addProductVariant(req,res) {
+
+    const productId = req.params.productId
+
+    const product = await productModel.findOne({_id: productId, seller: req.user._id})
+
+    if (!product) {
+        return res.status(404).json({
+            message: "Product not found",
+            success: false
+        })
+    }
+
+    const files = req.files
+    const images = []
+    if (files || files.length > 0) {
+        (await Promise.all(files.map(async (file) => {
+            const image = await uploadFile({
+                buffer: file.buffer,
+                fileName: file.originalname,
+            })
+            return image
+        }))) .map(image => images.push(image))
+    }
+
+    const amount = req.body.price.amount  
+    const currency = req.body.price.currency
+    const stock = req.body.stock
+    const attributes = JSON.parse(req.body.attributes || "{}")
+
+    console.log(product, images, amount, currency, stock, attributes);
+
+
 }

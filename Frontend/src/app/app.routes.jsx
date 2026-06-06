@@ -4,8 +4,9 @@ import Login from "../features/auth/pages/Login.jsx";
 import CreateProduct from "../features/products/pages/CreateProduct.jsx";
 import Protected from "../features/auth/components/Protected.jsx";
 import Dashboard from "../features/products/pages/Dashboard.jsx";
-import ProductDetail from "../features/auth/pages/ProductDetail.jsx";
+import ProductDetail from "../features/products/pages/ProductDetail.jsx"
 import Home from "../features/products/pages/Home.jsx";
+import SellerProductDetails from "../features/products/pages/SellerProductDetails.jsx";
 
 const router = createBrowserRouter([
     {
@@ -41,6 +42,12 @@ const router = createBrowserRouter([
                     <Dashboard /> 
                 </Protected>
             },
+            {
+                path: "/seller/product/:productId",
+                element: <Protected role="seller">
+                    <SellerProductDetails />
+                </Protected>
+            }
 
         ]
     }
