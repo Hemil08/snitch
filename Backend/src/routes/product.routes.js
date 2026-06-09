@@ -43,5 +43,4 @@ router.get("/detail/:id", productController.getProductDetails)
 
 router.post("/:productId/variants", authenticateSeller, upload.array('image',7) , productController.addProductVariant)
 
-
 export default router

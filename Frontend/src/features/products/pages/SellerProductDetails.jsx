@@ -1,20 +1,176 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { useProduct } from '../hook/useProduct';
+import { useParams } from 'react-router';
+
+// Helper icons
+const PlusIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
+const TrashIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>;
 
 const SellerProductDetails = () => {
-  
-  const { handleGetProductById } = useProduct();
-  
-    async function fetchProductDetails() {
+  const [ product, setProduct ] = useState(null);
+  const [ localVariants, setLocalVariants ] = useState([]);
+  const [ isAddingVariant, setIsAddingVariant ] = useState(false);
+  const [ loading, setLoading ] = useState(true);
+
+  // UI state for inputs to maintain focus
+  const [ attributeInputs, setAttributeInputs ] = useState([ { key: '', value: '' } ]);
+
+  // New variant state
+  const [ newVariant, setNewVariant ] = useState({
+    images: [],
+    stock: 0,
+    attributes: {}, // Strictly an object
+    price: { amount: '', currency: 'INR' }
+  });
+
+  const { productId } = useParams();
+  const { handleGetProductById, handleAddProductVariant } = useProduct();
+
+  async function fetchProductDetails() {
+    setLoading(true);
+    try {
       const data = await handleGetProductById(productId);
-      setProduct(data);
+      const prod = data?.product || data;
+      setProduct(prod);
+      // Initialize variants locally
+      if (prod?.variants) {
+        setLocalVariants(prod.variants);
+      }
+    } catch (error) {
+      console.error("Failed to fetch product details", error);
+    } finally {
+      setLoading(false);
     }
-  
-    useEffect(() => {
-      fetchProductDetails();
-    }, [productId]);
+  }
+
+  useEffect(() => {
+    fetchProductDetails();
+  }, [ productId ]);
+
+  // Handlers for modifying existing variant stock natively
+  const handleStockChange = (index, newStock) => {
+    const updatedVariants = [ ...localVariants ];
+    updatedVariants[ index ] = { ...updatedVariants[ index ], stock: Number(newStock) };
+    setLocalVariants(updatedVariants);
+  };
+
+  // Handlers for New Variant Form
+  const handleAddNewVariant = async () => {
+    // Validate required at least one attribute to be filled
+    const hasValidAttribute = attributeInputs.some(attr => attr.key.trim() && attr.value.trim());
+    if (!hasValidAttribute) {
+      alert("At least one valid attribute is required.");
+      return;
+    }
+
+    // Maps preview URL so the variant list can display the image locally
+    const cleanImages = newVariant.images.map(img => ({ url: img.previewUrl, file: img.file }));
+
+    // Attributes is already an object in newVariant, just use it safely
+    const cleanAttributes = { ...newVariant.attributes };
+
+    const variantToSave = {
+      images: cleanImages,
+      stock: Number(newVariant.stock),
+      attributes: cleanAttributes,
+      price: newVariant.price.amount
+        ? Number(newVariant.price.amount)
+        : undefined // price is optional
+    };
+
+    setLocalVariants([ ...localVariants, variantToSave ]);
+    setIsAddingVariant(false);
+
+    await handleAddProductVariant(productId, variantToSave)
+
+    // Reset form
+    // Note: should ideally revoke old object URLs as well to prevent memory leaks if it were a long-lived SPA
+    setAttributeInputs([ { key: '', value: '' } ]);
+    setNewVariant({
+      images: [],
+      stock: 0,
+      attributes: {},
+      price: { amount: '', currency: 'INR' }
+    });
+  };
+
+  const handleAddAttribute = () => {
+    setAttributeInputs(prev => [ ...prev, { key: '', value: '' } ]);
+  };
+
+  const handleAttributeChange = (index, field, value) => {
+    const updatedInputs = [ ...attributeInputs ];
+    updatedInputs[ index ][ field ] = value;
+    setAttributeInputs(updatedInputs);
+
+    // Synchronize to object format
+    const newAttrsObj = {};
+    updatedInputs.forEach(attr => {
+      if (attr.key.trim() !== '') {
+        newAttrsObj[ attr.key.trim() ] = attr.value;
+      }
+    });
+    setNewVariant(prev => ({ ...prev, attributes: newAttrsObj }));
+  };
+
+  const handleRemoveAttribute = (index) => {
+    const updatedInputs = attributeInputs.filter((_, i) => i !== index);
+    setAttributeInputs(updatedInputs);
+
+    // Synchronize to object format
+    const newAttrsObj = {};
+    updatedInputs.forEach(attr => {
+      if (attr.key.trim() !== '') {
+        newAttrsObj[ attr.key.trim() ] = attr.value;
+      }
+    });
+    setNewVariant(prev => ({ ...prev, attributes: newAttrsObj }));
+  };
+
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    const availableSlots = 7 - newVariant.images.length;
+    const filesToAdd = files.slice(0, availableSlots);
+
+    if (files.length > availableSlots) {
+      alert(`You can only upload up to 7 images. ${filesToAdd.length} added.`);
+    }
+
+    const newImageObjects = filesToAdd.map(file => ({
+      file,
+      previewUrl: URL.createObjectURL(file)
+    }));
+
+    setNewVariant(prev => ({
+      ...prev,
+      images: [ ...prev.images, ...newImageObjects ]
+    }));
+
+    // Clear the input so identical files can be selected again if needed
+    e.target.value = '';
+  };
+
+  const handleRemoveImage = (index) => {
+    const imageToRemove = newVariant.images[ index ];
+    if (imageToRemove?.previewUrl) {
+      URL.revokeObjectURL(imageToRemove.previewUrl);
+    }
+    const updatedImages = newVariant.images.filter((_, i) => i !== index);
+    setNewVariant(prev => ({ ...prev, images: updatedImages }));
+  };
+
+  if (loading) {
+    return <div className="min-h-screen bg-[#fbf9f6] flex items-center justify-center text-[#1b1c1a] font-serif">Loading gallery...</div>;
+  }
+
+  if (!product) {
+    return <div className="min-h-screen bg-[#fbf9f6] flex items-center justify-center text-[#1b1c1a] font-serif">Product Not Found</div>;
+  }
 
   return (
-     <div className="min-h-screen bg-[#fbf9f6] text-[#1b1c1a] font-sans pb-24">
+    <div className="min-h-screen bg-[#fbf9f6] text-[#1b1c1a] font-sans pb-24">
       {/* Top Banner / Header */}
       <header className="sticky top-0 z-10 bg-[#fbf9f6]/80 backdrop-blur-md px-6 py-4 flex items-center justify-between">
         <h1 className="font-serif text-xl tracking-wide uppercase">{product.title?.substring(0, 20)}{product.title?.length > 20 ? '...' : ''}</h1>

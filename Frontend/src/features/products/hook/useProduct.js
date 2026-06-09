@@ -28,5 +28,11 @@ export const useProduct = () => {
         return data.product
     }
 
-    return {handleCreateProduct, handleGetSellerProducts, handleGetAllProducts, handleGetProductById}
+    async function handleAddProductVariant(productId, newProductVariant){
+        const data = await addProductVariant(productId, newProductVariant)
+
+        return data
+    }
+
+    return {handleCreateProduct, handleGetSellerProducts, handleGetAllProducts, handleGetProductById, handleAddProductVariant}
 }

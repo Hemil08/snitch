@@ -45,7 +45,7 @@ export async function getSellerProducts(req,res) {
 
 export async function getAllProducts(req,res) {
 
-    const products = await productModel.find().populate("seller", "name email")
+    const products = await productModel.find()
 
     res.status(200).json({
         message: "Products fetched successfully",
@@ -59,6 +59,7 @@ export async function getProductDetails(req,res) {
     const {id} = req.params
 
     const product = await productModel.findById(id)
+
 
     if(!product){
         return res.status(404).json({
@@ -100,12 +101,28 @@ export async function addProductVariant(req,res) {
         }))) .map(image => images.push(image))
     }
 
-    const amount = req.body.price.amount  
-    const currency = req.body.price.currency
+    const price = req.body.priceAmount
     const stock = req.body.stock
     const attributes = JSON.parse(req.body.attributes || "{}")
 
     console.log(product, images, amount, currency, stock, attributes);
 
+    product.variants.push({
+        images,
+        price: {
+            amount: Number(price) || product.price.amount,
+            currency: req.body.priceCurrency || product.price.currency
+        },
+        stock,
+        attributes
+    })
+
+    await product.save();
+
+    return res.status(200).json({
+        message: "Product variant added successfully",
+        success: true,
+        product
+    })
 
 }

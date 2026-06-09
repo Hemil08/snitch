@@ -15,6 +15,7 @@ const ProductDetail = () => {
     setProduct(data);
   }
 
+
   useEffect(() => {
     fetchProductDetails();
   }, [productId]);
